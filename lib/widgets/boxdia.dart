@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BoxDia extends StatelessWidget {
-  const BoxDia({
+class BoxDaily extends StatelessWidget {
+  const BoxDaily({
     required this.date,
     required this.icon,
     required this.heat,
@@ -44,12 +44,15 @@ class BoxDia extends StatelessWidget {
             SizedBox(
               height: separatorLenght,
             ),
-            Text(
-              '$heat%',
-              style: const TextStyle(
-                color: Color(0xff2D305C),
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(
+                '$heatº',
+                style: const TextStyle(
+                  color: Color(0xff2D305C),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
