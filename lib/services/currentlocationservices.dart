@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clima/apis/weathergettersapi.dart';
 import 'package:flutter_clima/services/wsmanager.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -30,5 +31,10 @@ class ServicesCurrentLocation {
       );
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  static Future<String> getGeoPositionWeatherData(
+      Map<String, dynamic> data) async {
+    return await WsManager.get(ApiWeatherGetters.geoLocationData(), data);
   }
 }

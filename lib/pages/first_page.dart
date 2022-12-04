@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_clima/apis/weathergettersapi.dart';
 import 'package:flutter_clima/providers/currentlocationprovider.dart';
 import 'package:flutter_clima/services/currentlocationservices.dart';
-import 'package:flutter_clima/services/wsmanager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../widgets/boxdia.dart';
@@ -19,14 +17,30 @@ class FirstPage extends StatefulWidget {
 
 class _FirstPageState extends State<FirstPage> {
   void getLocation() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
+    Provider.of<ProviderCurrentLocation>(context, listen: false)
+        .isGettingLocation(true);
     Position? currentPos =
         await ServicesCurrentLocation.getDeviceLocation().catchError(
       (err) {
         print('Error: $err');
         // Provider.of<ProviderCurrentLocation>(context, listen: false)
         //     .locationUnavailableMessage = err;
+        Provider.of<ProviderCurrentLocation>(context, listen: false)
+            .isGettingLocation(false);
       },
     );
+    if (!mounted) return;
+    Provider.of<ProviderCurrentLocation>(context, listen: false)
+        .isGettingLocation(false);
+    String result = await ServicesCurrentLocation.getGeoPositionWeatherData({
+      "lat": currentPos.latitude.toString(),
+      "lon": currentPos.longitude.toString(),
+      "appid": "b798701cd35c00289c28db13ecdcbf3e"
+    });
+    print(result);
+    print(currentPos);
   }
 
   @override
@@ -51,7 +65,7 @@ class _FirstPageState extends State<FirstPage> {
         // title: const Text("First Page"),
         flexibleSpace: Container(
           height: kToolbarHeight + screenTopPadding,
-          color: Colors.red,
+          // color: Colors.red,
           padding: EdgeInsets.fromLTRB(
             leftPadding,
             screenTopPadding,
@@ -90,62 +104,79 @@ class _FirstPageState extends State<FirstPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Placeholder(
-              fallbackHeight: screenHeight * 0.4,
+      body: Provider.of<ProviderCurrentLocation>(context, listen: true)
+              .gettingLocation
+          ? Container()
+          : GeoLocation(screenHeight: screenHeight),
+    );
+  }
+}
+
+class GeoLocation extends StatelessWidget {
+  const GeoLocation({
+    Key? key,
+    required this.screenHeight,
+  }) : super(key: key);
+
+  final double screenHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          Placeholder(
+            fallbackHeight: screenHeight * 0.4,
+          ),
+          const Text(
+            'Cloudy',
+            style: TextStyle(
+              fontSize: 17,
             ),
-            const Text(
-              'Cloudy',
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(
+              '28º',
               style: TextStyle(
-                fontSize: 17,
+                fontSize: 70,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Text(
-                '28º',
-                style: TextStyle(
-                  fontSize: 70,
-                  fontWeight: FontWeight.w500,
-                ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              TinyDetail(
+                icon: Icons.air,
+                value: 8,
+                completer: 'km/h',
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                TinyDetail(
-                  icon: Icons.air,
-                  value: 8,
-                  completer: 'km/h',
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                TinyDetail(
-                  icon: Icons.water_drop_rounded,
-                  value: 47,
-                  completer: '%',
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return const BoxDaily(
-                    date: "Today",
-                    icon: Icons.cloudy_snowing,
-                    heat: '28',
-                  );
-                },
-                itemCount: 30,
+              SizedBox(
+                width: 20,
               ),
+              TinyDetail(
+                icon: Icons.water_drop_rounded,
+                value: 47,
+                completer: '%',
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return const BoxDaily(
+                  date: "Today",
+                  icon: Icons.cloudy_snowing,
+                  heat: '28',
+                );
+              },
+              itemCount: 30,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

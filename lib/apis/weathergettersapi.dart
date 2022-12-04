@@ -1,3 +1,4 @@
 class ApiWeatherGetters {
-  static String coordByLocation() => "/geo/1.0/direct";
+  static String listOfLocationsName() => "/geo/1.0/direct";
+  static String geoLocationData() => "/data/2.5/weather";
 }
