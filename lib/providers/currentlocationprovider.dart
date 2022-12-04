@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ProviderCurrentLocation extends ChangeNotifier {
-  Map<String, dynamic>? location;
+  late String locationUnavailableMessage;
+  Position? location;
 }

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clima/pages/first_page.dart';
 import 'package:flutter_clima/pages/second_page.dart';
+import 'package:flutter_clima/providers/customcityprovider.dart';
+import 'package:flutter_clima/providers/searchcityprovider.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/currentlocationprovider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,17 +16,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      themeMode: ThemeMode.light,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        Provider(create: (context) => ProviderCurrentLocation()),
+        Provider(create: (context) => ProviderCustomCity()),
+        Provider(create: (context) => ProviderSearchCity()),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        themeMode: ThemeMode.light,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const FirstPage(),
+          '/second': (context) => const SecondPage(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const FirstPage(),
-        '/second': (context) => const SecondPage(),
-      },
     );
   }
 }
