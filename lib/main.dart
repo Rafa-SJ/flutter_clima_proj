@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clima/pages/first_page.dart';
 import 'package:flutter_clima/pages/second_page.dart';
-import 'package:flutter_clima/providers/customcityprovider.dart';
-import 'package:flutter_clima/providers/searchcityprovider.dart';
+import 'package:flutter_clima/providers/customcity_provider.dart';
+import 'package:flutter_clima/providers/searchcity_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/currentlocationprovider.dart';
+import 'providers/currentlocation_provider.dart';
+import 'services/configreader.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ConfigReader.initialize();
   runApp(const MyApp());
 }
 

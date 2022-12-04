@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_clima/providers/currentlocationprovider.dart';
-import 'package:flutter_clima/services/currentlocationservices.dart';
+import 'package:flutter_clima/providers/currentlocation_provider.dart';
+import 'package:flutter_clima/services/configreader.dart';
+import 'package:flutter_clima/services/currentlocation_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../widgets/boxdia.dart';
@@ -37,8 +38,12 @@ class _FirstPageState extends State<FirstPage> {
     String result = await ServicesCurrentLocation.getGeoPositionWeatherData({
       "lat": currentPos.latitude.toString(),
       "lon": currentPos.longitude.toString(),
-      "appid": "b798701cd35c00289c28db13ecdcbf3e"
+      "appid": ConfigReader.getApiKey(),
+      "units": "metric"
     });
+    if (!mounted) return;
+    Provider.of<ProviderCurrentLocation>(context, listen: false)
+        .saveCurrentLocationData(result);
     print(result);
     print(currentPos);
   }

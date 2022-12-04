@@ -1,6 +1,6 @@
 import 'localnames_class.dart';
 
-class LocationData {
+class CityData {
   String? name;
   LocalNames? localnames;
   double? lat;
@@ -8,7 +8,7 @@ class LocationData {
   String? country;
   String? state;
 
-  LocationData(
+  CityData(
       {this.name,
       this.localnames,
       this.lat,
@@ -16,7 +16,7 @@ class LocationData {
       this.country,
       this.state});
 
-  LocationData.fromJson(Map<String, dynamic> json) {
+  CityData.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     localnames = json['local_names'] != null
         ? LocalNames?.fromJson(json['local_names'])

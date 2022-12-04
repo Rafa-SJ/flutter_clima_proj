@@ -11,4 +11,6 @@ class ProviderCurrentLocation extends ChangeNotifier {
     gettingLocation = isgetting;
     notifyListeners();
   }
+
+  void saveCurrentLocationData(String result) {}
 }
