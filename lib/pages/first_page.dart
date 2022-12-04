@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_clima/helpers/string_ext.dart';
 import 'package:flutter_clima/providers/currentlocation_provider.dart';
 import 'package:flutter_clima/services/configreader.dart';
 import 'package:flutter_clima/services/currentlocation_services.dart';
@@ -33,17 +37,20 @@ class _FirstPageState extends State<FirstPage> {
       },
     );
     if (!mounted) return;
-    Provider.of<ProviderCurrentLocation>(context, listen: false)
-        .isGettingLocation(false);
+
     String result = await ServicesCurrentLocation.getGeoPositionWeatherData({
       "lat": currentPos.latitude.toString(),
       "lon": currentPos.longitude.toString(),
       "appid": ConfigReader.getApiKey(),
-      "units": "metric"
+      "units": "metric",
+      "lang": "es"
     });
+    Map<String, dynamic> resultMap = jsonDecode(result);
     if (!mounted) return;
     Provider.of<ProviderCurrentLocation>(context, listen: false)
-        .saveCurrentLocationData(result);
+        .saveCurrentLocationData(resultMap);
+    Provider.of<ProviderCurrentLocation>(context, listen: false)
+        .isGettingLocation(false);
     print(result);
     print(currentPos);
   }
@@ -82,14 +89,15 @@ class _FirstPageState extends State<FirstPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.location_on_rounded),
-                    SizedBox(
+                  children: [
+                    const Icon(Icons.location_on_rounded),
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(
-                      'San Francisco',
-                      style: TextStyle(
+                      Provider.of<ProviderCurrentLocation>(context)
+                          .getCityName(),
+                      style: const TextStyle(
                         fontSize: 17,
                       ),
                     ),
@@ -130,20 +138,23 @@ class GeoLocation extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          Placeholder(
-            fallbackHeight: screenHeight * 0.4,
-          ),
-          const Text(
-            'Cloudy',
-            style: TextStyle(
+          CachedNetworkImage(
+              imageUrl: Provider.of<ProviderCurrentLocation>(context)
+                  .getActualWeatherIcon()),
+          Text(
+            Provider.of<ProviderCurrentLocation>(context)
+                .getWeatherDescription()
+                .toTitleCase(),
+            style: const TextStyle(
               fontSize: 17,
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(left: 20),
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
             child: Text(
-              '28º',
-              style: TextStyle(
+              Provider.of<ProviderCurrentLocation>(context)
+                  .getWeatherActualTemp(),
+              style: const TextStyle(
                 fontSize: 70,
                 fontWeight: FontWeight.w500,
               ),
