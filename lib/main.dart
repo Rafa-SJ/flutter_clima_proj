@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clima/pages/first_page.dart';
+import 'package:flutter_clima/pages/second_page.dart';
+import 'package:flutter_clima/providers/customcity_provider.dart';
+import 'package:flutter_clima/providers/searchcity_provider.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+import 'providers/currentlocation_provider.dart';
+import 'services/configreader.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ConfigReader.initialize();
   runApp(const MyApp());
 }
 
@@ -9,41 +19,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Bienvenido a la aplicacion de clima\nPara continuar necesitamos que nos de acceso al GPS',
-            ),
-          ],
+    return MultiProvider(
+      providers: [
+        ListenableProvider(create: (context) => ProviderCurrentLocation()),
+        ListenableProvider(create: (context) => ProviderCustomCity()),
+        ListenableProvider(create: (context) => ProviderSearchCity()),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        themeMode: ThemeMode.light,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
         ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const FirstPage(),
+          '/second': (context) => const SecondPage(),
+        },
       ),
     );
   }
