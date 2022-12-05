@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clima/providers/customcity_provider.dart';
+import 'package:flutter_clima/providers/searchcity_provider.dart';
+import 'package:flutter_clima/services/configreader.dart';
+import 'package:flutter_clima/services/searchlocation_services.dart';
+import 'package:provider/provider.dart';
 
 ///SECOND PAGE, SHOW DETAIL FOR SOME WEATHER LOCATION
 
@@ -10,11 +15,20 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage> {
-  String ciudadTarget = "sa";
+  void buscarCiudad() async {
+    String res = await ServicesSearchLocation.getLocationsByName({
+      "q": Provider.of<ProviderSearchCity>(context, listen: false).citysearched,
+      "limit": "10",
+      "appid": ConfigReader.getApiKey(),
+    });
+
+    print(res);
+  }
 
   @override
   void initState() {
     super.initState();
+    // buscarCiudad();
   }
 
   @override
@@ -56,6 +70,11 @@ class _SecondPageState extends State<SecondPage> {
                             fontSize: 17,
                             color: Colors.white,
                           ),
+                          onChanged: (value) {
+                            Provider.of<ProviderSearchCity>(context,
+                                    listen: false)
+                                .setCitySearch(value);
+                          },
                         ),
                       ),
                     ],
@@ -65,9 +84,15 @@ class _SecondPageState extends State<SecondPage> {
                       Icons.search_rounded,
                       color: Colors.white,
                     ),
-                    onPressed: () {
-                      // Navigator.pushNamed(context, '/second');
-                    },
+                    onPressed:
+                        Provider.of<ProviderSearchCity>(context).citysearched ==
+                                ""
+                            ? null
+                            : () {
+                                // Navigator.pushNamed(context, '/second');
+
+                                buscarCiudad();
+                              },
                   )
                 ],
               ),
@@ -76,8 +101,8 @@ class _SecondPageState extends State<SecondPage> {
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: leftPadding),
-          child: ciudadTarget == ""
-              ? ListaBuscadorCiudad()
+          child: Provider.of<ProviderCustomCity>(context).ciudadTarget == ""
+              ? const ListaBuscadorCiudad()
               : const DetalleCiudad(),
         ));
   }
