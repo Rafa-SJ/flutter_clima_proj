@@ -7,7 +7,7 @@ class TinyDetail extends StatelessWidget {
     required this.completer,
   }) : super(key: key);
 
-  final num value;
+  final String value;
   final String completer;
 
   @override
@@ -15,7 +15,7 @@ class TinyDetail extends StatelessWidget {
     return Row(
       children: [
         Text(
-          value.toString(),
+          value,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         Text(
