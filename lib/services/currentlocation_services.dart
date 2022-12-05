@@ -37,4 +37,8 @@ class ServicesCurrentLocation {
       Map<String, dynamic> data) async {
     return await WsManager.get(ApiWeatherGetters.geoLocationData(), data);
   }
+
+  static Future<String> getForecastWeather(Map<String, dynamic> data) async {
+    return await WsManager.get(ApiWeatherGetters.getForecast(), data);
+  }
 }

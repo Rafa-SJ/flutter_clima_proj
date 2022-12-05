@@ -1,16 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BoxDaily extends StatelessWidget {
   const BoxDaily({
     required this.date,
-    required this.icon,
-    required this.heat,
+    required this.imageUrl,
+    required this.min,
+    required this.max,
     Key? key,
   }) : super(key: key);
 
   final String date;
-  final IconData icon;
-  final String heat;
+  final String imageUrl;
+  final String min;
+  final String max;
 
   final double separatorLenght = 5;
   @override
@@ -30,29 +33,43 @@ class BoxDaily extends StatelessWidget {
             Text(
               date,
               style: const TextStyle(
-                color: Colors.grey,
+                // color: Colors.grey,
                 fontWeight: FontWeight.bold,
+                fontSize: 20,
               ),
             ),
             SizedBox(
               width: separatorLenght,
             ),
-            const Icon(
-              Icons.cloud,
-              size: 60,
+            CachedNetworkImage(
+              imageUrl: imageUrl,
+              height: 60,
             ),
             SizedBox(
               height: separatorLenght,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text(
-                '$heatº',
-                style: const TextStyle(
-                  color: Color(0xff2D305C),
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                children: [
+                  Text(
+                    min,
+                    style: const TextStyle(
+                      color: Color(0xff2D305C),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text('/'),
+                  Text(
+                    max,
+                    style: const TextStyle(
+                      color: Color(0xff2D305C),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ProviderSearchCity extends ChangeNotifier {
-  Map<String, dynamic>? location;
+  String citysearched = "";
+  Map<String, dynamic>? citiesAvailables;
+
+  void setCitySearch(String input) {
+    citysearched = input;
+  }
 }

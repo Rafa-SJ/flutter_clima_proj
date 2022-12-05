@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_clima/helpers/datetime_ext.dart';
 import 'package:flutter_clima/helpers/string_ext.dart';
 import 'package:flutter_clima/providers/currentlocation_provider.dart';
 import 'package:flutter_clima/services/configreader.dart';
@@ -38,20 +39,36 @@ class _FirstPageState extends State<FirstPage> {
     );
     if (!mounted) return;
 
-    String result = await ServicesCurrentLocation.getGeoPositionWeatherData({
+    String resultCurrentWeather =
+        await ServicesCurrentLocation.getGeoPositionWeatherData({
       "lat": currentPos.latitude.toString(),
       "lon": currentPos.longitude.toString(),
       "appid": ConfigReader.getApiKey(),
       "units": "metric",
       "lang": "es"
     });
-    Map<String, dynamic> resultMap = jsonDecode(result);
+
+    String resultForecastWeather =
+        await ServicesCurrentLocation.getForecastWeather({
+      "lat": currentPos.latitude.toString(),
+      "lon": currentPos.longitude.toString(),
+      "appid": ConfigReader.getApiKey(),
+      "units": "metric",
+      "lang": "es"
+    });
+
+    Map<String, dynamic> currentWeatherMap = jsonDecode(resultCurrentWeather);
+    Map<String, dynamic> forecastWeatherMap = jsonDecode(resultForecastWeather);
+
     if (!mounted) return;
     Provider.of<ProviderCurrentLocation>(context, listen: false)
-        .saveCurrentLocationData(resultMap);
+        .saveCurrentLocationData(currentWeatherMap);
+    Provider.of<ProviderCurrentLocation>(context, listen: false)
+        .saveForecastLocationData(forecastWeatherMap);
+
     Provider.of<ProviderCurrentLocation>(context, listen: false)
         .isGettingLocation(false);
-    print(result);
+    print(resultCurrentWeather);
     print(currentPos);
   }
 
@@ -66,6 +83,7 @@ class _FirstPageState extends State<FirstPage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final double screenTopPadding = MediaQuery.of(context).padding.top;
+    final double screenBottomPadding = MediaQuery.of(context).padding.bottom;
     final double leftPadding = 10;
     final double rightPadding = 10;
 
@@ -106,7 +124,7 @@ class _FirstPageState extends State<FirstPage> {
                 IconButton(
                   icon: const Icon(
                     Icons.search_rounded,
-                    color: Colors.white,
+                    // color: Colors.white,
                   ),
                   onPressed: () {
                     Navigator.pushNamed(context, '/second');
@@ -120,7 +138,10 @@ class _FirstPageState extends State<FirstPage> {
       body: Provider.of<ProviderCurrentLocation>(context, listen: true)
               .gettingLocation
           ? Container()
-          : GeoLocation(screenHeight: screenHeight),
+          : GeoLocation(
+              screenHeight: screenHeight,
+              bottomPadding: screenBottomPadding,
+            ),
     );
   }
 }
@@ -129,18 +150,24 @@ class GeoLocation extends StatelessWidget {
   const GeoLocation({
     Key? key,
     required this.screenHeight,
+    required this.bottomPadding,
   }) : super(key: key);
 
   final double screenHeight;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomPadding + 20),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CachedNetworkImage(
-              imageUrl: Provider.of<ProviderCurrentLocation>(context)
-                  .getActualWeatherIcon()),
+            imageUrl: Provider.of<ProviderCurrentLocation>(context)
+                .getActualWeatherIcon(),
+            height: screenHeight * 0.3,
+          ),
           Text(
             Provider.of<ProviderCurrentLocation>(context)
                 .getWeatherDescription()
@@ -164,32 +191,44 @@ class GeoLocation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               TinyDetail(
-                icon: Icons.air,
                 value: 8,
-                completer: 'km/h',
+                completer: 'ºMin',
               ),
               SizedBox(
-                width: 20,
+                width: 5,
+              ),
+              Text('/'),
+              SizedBox(
+                width: 5,
               ),
               TinyDetail(
-                icon: Icons.water_drop_rounded,
                 value: 47,
-                completer: '%',
+                completer: 'ºMax',
               ),
             ],
           ),
           SizedBox(
             height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return const BoxDaily(
-                  date: "Today",
-                  icon: Icons.cloudy_snowing,
-                  heat: '28',
-                );
-              },
-              itemCount: 30,
+            child: Center(
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  var actualDate = DateTime.now().add(Duration(days: index));
+                  String indexDay = actualDate.day == DateTime.now().day
+                      ? "Hoy"
+                      : actualDate.weekdayName()!;
+                  return BoxDaily(
+                    date: indexDay,
+                    imageUrl: Provider.of<ProviderCurrentLocation>(context)
+                        .getForecastWeatherIcon(index),
+                    min: Provider.of<ProviderCurrentLocation>(context)
+                        .getForecastMinTemp(index),
+                    max: Provider.of<ProviderCurrentLocation>(context)
+                        .getForecastMaxTemp(index),
+                  );
+                },
+                itemCount: 5,
+              ),
             ),
           ),
         ],
