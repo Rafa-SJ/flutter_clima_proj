@@ -21,20 +21,9 @@ class CityData {
     localnames = json['local_names'] != null
         ? LocalNames?.fromJson(json['local_names'])
         : null;
-    lat = json['lat'];
-    lon = json['lon'];
+    lat = double.parse(json['lat'].toString());
+    lon = double.parse(json['lon'].toString());
     country = json['country'];
     state = json['state'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['local_names'] = localnames!.toJson();
-    data['lat'] = lat;
-    data['lon'] = lon;
-    data['country'] = country;
-    data['state'] = state;
-    return data;
   }
 }
