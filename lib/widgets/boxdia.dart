@@ -48,9 +48,10 @@ class BoxDaily extends StatelessWidget {
             SizedBox(
               height: separatorLenght,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
+            SizedBox(
+              width: 90,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     min,

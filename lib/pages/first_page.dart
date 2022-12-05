@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_clima/helpers/datetime_ext.dart';
 import 'package:flutter_clima/helpers/string_ext.dart';
 import 'package:flutter_clima/providers/currentlocation_provider.dart';
+import 'package:flutter_clima/providers/customcity_provider.dart';
+import 'package:flutter_clima/providers/searchcity_provider.dart';
 import 'package:flutter_clima/services/configreader.dart';
 import 'package:flutter_clima/services/currentlocation_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../widgets/boxdia.dart';
 import '../widgets/tinydetail.dart';
 
@@ -68,8 +71,8 @@ class _FirstPageState extends State<FirstPage> {
 
     Provider.of<ProviderCurrentLocation>(context, listen: false)
         .isGettingLocation(false);
-    print(resultCurrentWeather);
-    print(currentPos);
+    // print(resultCurrentWeather);
+    // print(currentPos);
   }
 
   @override
@@ -112,13 +115,27 @@ class _FirstPageState extends State<FirstPage> {
                     const SizedBox(
                       width: 10,
                     ),
-                    Text(
-                      Provider.of<ProviderCurrentLocation>(context)
-                          .getCityName(),
-                      style: const TextStyle(
-                        fontSize: 17,
-                      ),
-                    ),
+                    Provider.of<ProviderCurrentLocation>(context, listen: true)
+                            .gettingLocation
+                        ? Shimmer.fromColors(
+                            baseColor: Colors.white,
+                            highlightColor: Colors.grey,
+                            child: Container(
+                              height: 30,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          )
+                        : Text(
+                            Provider.of<ProviderCurrentLocation>(context)
+                                .getCityName(),
+                            style: const TextStyle(
+                              fontSize: 17,
+                            ),
+                          ),
                   ],
                 ),
                 IconButton(
@@ -127,6 +144,10 @@ class _FirstPageState extends State<FirstPage> {
                     // color: Colors.white,
                   ),
                   onPressed: () {
+                    Provider.of<ProviderCustomCity>(context, listen: false)
+                        .cleanAll();
+                    Provider.of<ProviderSearchCity>(context, listen: false)
+                        .cleanAll();
                     Navigator.pushNamed(context, '/second');
                   },
                 )
@@ -137,11 +158,104 @@ class _FirstPageState extends State<FirstPage> {
       ),
       body: Provider.of<ProviderCurrentLocation>(context, listen: true)
               .gettingLocation
-          ? Container()
+          ? ShimmerGeolocator(screenHeight: screenHeight)
           : GeoLocation(
               screenHeight: screenHeight,
               bottomPadding: screenBottomPadding,
+              imageUrl: Provider.of<ProviderCurrentLocation>(context)
+                  .getActualWeatherIcon(),
+              weatherDescription: Provider.of<ProviderCurrentLocation>(context)
+                  .getWeatherDescription()
+                  .toTitleCase(),
+              maxTemp:
+                  Provider.of<ProviderCurrentLocation>(context).getMaxTemp(),
+              minTemp:
+                  Provider.of<ProviderCurrentLocation>(context).getMinTemp(),
+              weatherActualTemp: Provider.of<ProviderCurrentLocation>(context)
+                  .getWeatherActualTemp(),
             ),
+    );
+  }
+}
+
+class ShimmerGeolocator extends StatelessWidget {
+  const ShimmerGeolocator({
+    Key? key,
+    required this.screenHeight,
+  }) : super(key: key);
+
+  final double screenHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.white,
+      highlightColor: Colors.grey,
+      child: Column(
+        children: [
+          Container(
+            color: Colors.white.withOpacity(0.4),
+            height: screenHeight * 0.3,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            height: 30,
+            width: 200,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Container(
+            height: 120,
+            width: 120,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Container(
+            height: 30,
+            width: 200,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            height: 150,
+            child: Center(
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 120,
+                    height: 150,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  );
+                },
+                itemCount: 5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -151,10 +265,20 @@ class GeoLocation extends StatelessWidget {
     Key? key,
     required this.screenHeight,
     required this.bottomPadding,
+    required this.imageUrl,
+    required this.weatherDescription,
+    required this.weatherActualTemp,
+    required this.minTemp,
+    required this.maxTemp,
   }) : super(key: key);
 
   final double screenHeight;
   final double bottomPadding;
+  final String imageUrl,
+      weatherDescription,
+      weatherActualTemp,
+      minTemp,
+      maxTemp;
 
   @override
   Widget build(BuildContext context) {
@@ -164,14 +288,11 @@ class GeoLocation extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CachedNetworkImage(
-            imageUrl: Provider.of<ProviderCurrentLocation>(context)
-                .getActualWeatherIcon(),
+            imageUrl: imageUrl,
             height: screenHeight * 0.3,
           ),
           Text(
-            Provider.of<ProviderCurrentLocation>(context)
-                .getWeatherDescription()
-                .toTitleCase(),
+            weatherDescription,
             style: const TextStyle(
               fontSize: 17,
             ),
@@ -179,8 +300,7 @@ class GeoLocation extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Text(
-              Provider.of<ProviderCurrentLocation>(context)
-                  .getWeatherActualTemp(),
+              weatherActualTemp,
               style: const TextStyle(
                 fontSize: 70,
                 fontWeight: FontWeight.w500,
@@ -189,21 +309,21 @@ class GeoLocation extends StatelessWidget {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               TinyDetail(
-                value: 8,
-                completer: 'ºMin',
+                value: minTemp,
+                completer: 'Min',
               ),
-              SizedBox(
+              const SizedBox(
                 width: 5,
               ),
-              Text('/'),
-              SizedBox(
+              const Text('/'),
+              const SizedBox(
                 width: 5,
               ),
               TinyDetail(
-                value: 47,
-                completer: 'ºMax',
+                value: maxTemp,
+                completer: 'Max',
               ),
             ],
           ),
