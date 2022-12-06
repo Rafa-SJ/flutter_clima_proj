@@ -74,7 +74,7 @@ class ProviderCurrentLocation extends ChangeNotifier {
   }
 
   String getForecastWeatherIcon(int index) {
-    return "http://openweathermap.org/img/wn/${forecastDaily?[index]?.weather?.first?.icon}@2x.png";
+    return "http://openweathermap.org/img/wn/${forecastDaily?[index].weather?.first?.icon}@2x.png";
   }
 
   String getForecastMinTemp(int index) {

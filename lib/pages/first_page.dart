@@ -83,12 +83,11 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final double screenTopPadding = MediaQuery.of(context).padding.top;
     final double screenBottomPadding = MediaQuery.of(context).padding.bottom;
-    final double leftPadding = 10;
-    final double rightPadding = 10;
+    const double leftPadding = 10;
+    const double rightPadding = 10;
 
     return Scaffold(
       backgroundColor: const Color(0xff70F3EB),
