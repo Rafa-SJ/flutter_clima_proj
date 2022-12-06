@@ -94,9 +94,7 @@ class _SecondPageState extends State<SecondPage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final double screenTopPadding = MediaQuery.of(context).padding.top;
-    final double screenBottomPadding = MediaQuery.of(context).padding.bottom;
-    final double leftPadding = 15;
-    final double rightPadding = 10;
+    const double rightPadding = 10;
 
     return Scaffold(
       backgroundColor: const Color(0xff232535),

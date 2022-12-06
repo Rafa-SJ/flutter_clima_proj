@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_clima/apis/weathergettersapi.dart';
 import 'package:flutter_clima/services/wsmanager.dart';
 import 'package:geolocator/geolocator.dart';
